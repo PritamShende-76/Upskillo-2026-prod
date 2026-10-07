@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./BE
+    env_file:
+      - ./BE/.env
+    ports:
+      - "4000:4000"
+    volumes:
+      - icons:/app/icons
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./FE
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  icons:
+    driver: local
+

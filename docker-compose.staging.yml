@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./BE
+      dockerfile: Dockerfile
+    env_file:
+      - ./BE/.env.staging
+    ports:
+      - "4000:4000"
+    volumes:
+      - icons:/app/icons
+    restart: unless-stopped
+    networks:
+      - staging-network
+
+  frontend:
+    build:
+      context: ./FE
+      dockerfile: Dockerfile.staging
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - staging-network
+
+volumes:
+  icons:
+    driver: local
+  certbot-webroot:
+    driver: local
+
+networks:
+  staging-network:
+    driver: bridge
